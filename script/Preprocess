@@ -1,0 +1,92 @@
+import numpy as np
+import pandas as pd
+
+
+######################################
+# To translate string into number by ave price
+######################################
+
+# houseprice=pd.read_csv('train.csv')
+houseprice=pd.read_csv('test.csv')
+count = houseprice['SalePrice'].count()
+
+
+def cat_exploration(column):                        ## finding all categories of one feature and calculate it
+    return houseprice[column].value_counts()
+
+
+def getAve(column,value):                           ## calculating average price of one class
+    ave = 0
+    temp = 0
+    index1 = 0
+    count = houseprice['SalePrice'][houseprice[column] == value].count()
+    while index1 < count:
+        temp = houseprice['SalePrice'][houseprice[column] == value].index[index1]
+        ave = ave + houseprice['SalePrice'][houseprice[column] == value][temp]
+        index1 += 1
+    ave = ave/count
+    return ave
+
+
+def setAve(column, replaced, value):                ## using average price to one category which is string
+    count = houseprice['SalePrice'][houseprice[column] == replaced].count()
+    index1 = 0
+    temp = 0
+    while index1 < count:
+        index1 += 1
+        temp = houseprice['SalePrice'][houseprice[column] == replaced].index[0]
+        houseprice.loc[temp, column] = int(value)
+
+
+def calculateCategories(column):                    ## calculating how many categories of one feature
+    return houseprice[column].value_counts().count()
+
+
+def getCategory(column,key):                        ## getting category by index
+    list = houseprice[column].value_counts().index.tolist()
+    return list[key]
+
+
+def StrToNum(column):                               ## translating string to ave price for one feature
+    j = calculateCategories(column)
+    i = 0
+    list = houseprice[column].value_counts().index.tolist()
+    while i < j:
+        setAve(column, list[i], getAve(column, list[i]))
+        i += 1
+
+
+# setAve('MSZoning','RL',getAve('MSZoning','RL'))
+# setAve('MSZoning','RM',getAve('MSZoning','RM'))
+# setAve('MSZoning','FV',getAve('MSZoning','FV'))
+# setAve('MSZoning','RH',getAve('MSZoning','RH'))
+# setAve('MSZoning','C (all)',getAve('MSZoning','C (all)'))
+
+
+featuresNum = list(houseprice).__len__()                            ## translating all string to average price
+temp = 0
+while temp<featuresNum:
+    print temp
+    judge = isinstance(houseprice[list(houseprice)[temp]].value_counts().index[0],str)    ## judging whether category is string
+    if judge:
+        StrToNum(list(houseprice)[temp])
+        temp += 1
+    else:
+        temp += 1
+        continue
+
+
+
+houseprice.to_csv('out3.csv',index=False)
+houseprice1 = pd.read_csv('out3.csv')
+
+temp = 0                                    ## checking whether value is string
+while temp < list(houseprice1).__len__():
+    temp1 = 0
+    while temp1<count:
+        if isinstance(houseprice1[list(houseprice1)[temp]][temp1], str):
+            print list(houseprice1)[temp]
+        temp1 += 1
+    temp += 1
+
+# print houseprice['Neighborhood']
